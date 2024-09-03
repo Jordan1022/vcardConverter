@@ -12,7 +12,6 @@ class handler(BaseHTTPRequestHandler):
 
         # Read CSV from POST data
         df = pd.read_csv(BytesIO(post_data))
-
         # Create ZIP file in memory
         memory_file = BytesIO()
         with zipfile.ZipFile(memory_file, 'w') as zf:
