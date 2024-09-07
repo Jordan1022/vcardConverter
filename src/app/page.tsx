@@ -9,29 +9,36 @@ export default function Home() {
     setFile(event.target.files?.[0] || null);
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!file) return;
 
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch('/api/convert', {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const response = await fetch('/api/vcard_converter', {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (response.ok) {
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'vcards.zip';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    } else {
-      console.error('Failed to convert file');
+      if (response.ok) {
+        // Create a blob from the response
+        const blob = await response.blob();
+        // Create a download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'vcards.zip';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error('Conversion failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 
